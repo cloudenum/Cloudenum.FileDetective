@@ -1,0 +1,3 @@
+[submodule "extern/libchardet"]
+	path = extern/libchardet
+	url = git@github.com:Joungkyun/libchardet.git

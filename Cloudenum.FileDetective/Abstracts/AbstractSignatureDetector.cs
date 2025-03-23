@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace Cloudenum.FileDetective.Abstracts
 {
@@ -16,24 +18,30 @@ namespace Cloudenum.FileDetective.Abstracts
         /// </summary>
         public abstract FileSignature[] Signatures { get; }
 
-        public virtual bool Matches(byte[] fileBytes)
+        public virtual bool Matches(Stream stream)
         {
-            if (fileBytes == null || fileBytes.Length == 0)
+            foreach (var signature in Signatures)
             {
-                return false;
-            }
-
-            if (Signatures != null)
-            {
-                foreach (var signature in Signatures)
+                if (stream.Length >= signature.Offset + signature.MagicBytes.Length)
                 {
-                    if (fileBytes.Length >= signature.Offset + signature.MagicBytes.Length)
+                    var bufferSize = signature.MagicBytes.Length;
+                    byte[] buffer = new byte[bufferSize];
+                    stream.Position = signature.Offset;
+                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                    if (bytesRead == 0)
                     {
-                        byte[] currentFileSignature = fileBytes.Skip(signature.Offset).Take(signature.MagicBytes.Length).ToArray();
-                        if (currentFileSignature.SequenceEqual(signature.MagicBytes))
-                        {
-                            return true;
-                        }
+                        return false;
+                    }
+
+                    if (bytesRead < bufferSize)
+                    {
+                        Array.Resize(ref buffer, bytesRead);
+                    }
+
+                    if (buffer.SequenceEqual(signature.MagicBytes))
+                    {
+                        return true;
                     }
                 }
             }

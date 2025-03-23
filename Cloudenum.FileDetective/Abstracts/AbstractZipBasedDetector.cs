@@ -22,24 +22,13 @@ namespace Cloudenum.FileDetective.Abstracts
         };
 
         /// <summary>
-        /// Contents to look for in the zip file
+        /// Files to look for in the zip archive
         /// </summary>
         protected abstract string[] ContentsToLookFor { get; }
 
-        public virtual bool Matches(byte[] fileBytes)
+        public virtual bool Matches(Stream stream)
         {
-            if (fileBytes == null || fileBytes.Length == 0)
-            {
-                return false;
-            }
-
-            if (ContentsToLookFor == null || ContentsToLookFor.Length == 0)
-            {
-                return false;
-            }
-
-            using (var stream = new MemoryStream(fileBytes))
-            using (ZipArchive zipArchive = new ZipArchive(stream, ZipArchiveMode.Read))
+            using (ZipArchive zipArchive = new ZipArchive(stream, mode: ZipArchiveMode.Read, leaveOpen: true))
             {
                 foreach (var content in ContentsToLookFor)
                 {

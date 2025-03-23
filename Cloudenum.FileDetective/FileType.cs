@@ -27,6 +27,10 @@ namespace Cloudenum.FileDetective
             RegisterFileDetector<ZipArchiveDetector>();
             RegisterFileDetector<DocxDetector>();
             RegisterFileDetector<XlsxDetector>();
+
+            // Text Based Detectors
+            RegisterFileDetector<CsvDetector>();
+            RegisterFileDetector<PlainTextDetector>();
         }
 
         private static int GetByteArrayPrefix(byte[] bytes, int offset = 0)
@@ -130,23 +134,7 @@ namespace Cloudenum.FileDetective
         /// </returns>
         public static string[] GetFileExtensions(Stream stream)
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                stream.CopyTo(memoryStream);
-                return GetFileExtensions(memoryStream.ToArray());
-            }
-        }
-
-        /// <summary>
-        /// Get every file extensions that corresponds to the file MIME type
-        /// </summary>
-        /// <param name="fileBytes">Byte array of the file</param>
-        /// <returns>
-        /// The file extensions without leading dot or null if the file is not recognized
-        /// </returns>
-        public static string[] GetFileExtensions(byte[] fileBytes)
-        {
-            var mime = GetMimeType(fileBytes);
+            var mime = GetMimeType(stream);
 
             return mime != null ? MimeTypes.GetMimeTypeExtensions(mime).ToArray() : null;
         }
@@ -158,25 +146,21 @@ namespace Cloudenum.FileDetective
         /// <returns>
         /// The file extensions without leading dot or null if the file is not recognized
         /// </returns>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentException"/>
         public static string GetMimeType(Stream stream)
         {
-            using (var memoryStream = new MemoryStream())
+            if (stream == null)
             {
-                stream.CopyTo(memoryStream);
-                return GetMimeType(memoryStream.ToArray());
+                throw new ArgumentNullException(nameof(stream));
             }
-        }
 
-        /// <summary>
-        /// Get the MIME type of a file
-        /// </summary>
-        /// <param name="fileBytes">Byte array of the file</param>
-        /// <returns>
-        /// MIME type of the file or null if the file is not recognized
-        /// </returns>
-        public static string GetMimeType(byte[] fileBytes)
-        {
-            if (fileBytes == null || fileBytes.Length == 0)
+            if (!stream.CanSeek || !stream.CanRead)
+            {
+                throw new ArgumentException("Stream must be seekable and readable", nameof(stream));
+            }
+
+            if (stream.Length == 0)
             {
                 return null;
             }
@@ -184,13 +168,24 @@ namespace Cloudenum.FileDetective
             // First check the signature detectors
             foreach (var offsetGroup in SignatureDetectors)
             {
-                var offset = offsetGroup.Key;
-                var prefix = GetByteArrayPrefix(fileBytes, offset);
+                int offset = offsetGroup.Key;
+                int bufferSize = 4;
+                byte[] buffer = new byte[bufferSize];
+                stream.Position = 0;
+                int bytesRead = stream.Read(buffer, offset, buffer.Length);
+
+                if (bytesRead < bufferSize)
+                {
+                    Array.Resize(ref buffer, bytesRead);
+                }
+
+                int prefix = GetByteArrayPrefix(buffer, offset);
                 if (offsetGroup.Value.ContainsKey(prefix))
                 {
-                    foreach (var detector in offsetGroup.Value[prefix])
+                    foreach (IFileDetector detector in offsetGroup.Value[prefix])
                     {
-                        if (detector.Matches(fileBytes))
+                        stream.Position = 0;
+                        if (detector.Matches(stream))
                         {
                             return detector.MimeType;
                         }
@@ -199,13 +194,15 @@ namespace Cloudenum.FileDetective
             }
 
             // Fallback to general detectors
-            foreach (var detector in GeneralDetectors)
+            foreach (IFileDetector detector in GeneralDetectors)
             {
-                if (detector.Matches(fileBytes))
+                stream.Position = 0;
+                if (detector.Matches(stream))
                 {
                     return detector.MimeType;
                 }
             }
+
             return null;
         }
     }

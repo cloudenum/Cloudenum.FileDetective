@@ -1,8 +1,11 @@
-﻿namespace Cloudenum.FileDetective
+﻿using System.Runtime.InteropServices;
+
+namespace Cloudenum.FileDetective
 {
     /// <summary>
     /// Represents a file signature
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct FileSignature
     {
         /// <summary>

@@ -2,106 +2,104 @@ namespace Cloudenum.FileDetective.Test
 {
     public class FileTypeTest
     {
-        private static byte[] ReadAllBytesFromTestSubject(string fileName)
+        private static string GetTestSubjectPath(string fileName)
         {
-            var filePath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "TestSubjects", fileName);
-            return System.IO.File.ReadAllBytes(filePath);
+            return System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "TestSubjects", fileName);
+        }
+
+        private static string GetMimeTypeFromTestSubject(string fileName)
+        {
+            string filePath = GetTestSubjectPath(fileName);
+            using var fileStream = System.IO.File.OpenRead(filePath);
+            return FileType.GetMimeType(fileStream);
         }
 
         [Fact]
         public void AviDetector_Should_Detect_Avi_File()
         {
-            byte[] aviFileBytes = ReadAllBytesFromTestSubject("Test.avi");
+            var mimeType = GetMimeTypeFromTestSubject("Test.avi");
 
-            // Act
-            var mimeType = FileType.GetMimeType(aviFileBytes);
-
-            // Assert
             Assert.Equal("video/avi", mimeType);
         }
 
         [Fact]
         public void JpegDetector_Should_Detect_Jpeg_File()
         {
-            byte[] jpegFileBytes = ReadAllBytesFromTestSubject("Test.jpg");
+            var mimeType = GetMimeTypeFromTestSubject("Test.jpg");
 
-            // Act
-            var mimeType = FileType.GetMimeType(jpegFileBytes);
-
-            // Assert
             Assert.Equal("image/jpeg", mimeType);
         }
 
         [Fact]
         public void Jpeg2000Detector_Should_Detect_Jpeg2000_File()
         {
-            byte[] jpeg2000FileBytes = ReadAllBytesFromTestSubject("Test.jp2");
+            var mimeType = GetMimeTypeFromTestSubject("Test.jp2");
 
-            // Act
-            var mimeType = FileType.GetMimeType(jpeg2000FileBytes);
-
-            // Assert
             Assert.Equal("image/jp2", mimeType);
         }
 
         [Fact]
         public void PdfDetector_Should_Detect_Pdf_File()
         {
-            byte[] pdfFileBytes = ReadAllBytesFromTestSubject("Test.pdf");
+            var mimeType = GetMimeTypeFromTestSubject("Test.pdf");
 
-            // Act
-            var mimeType = FileType.GetMimeType(pdfFileBytes);
-
-            // Assert
             Assert.Equal("application/pdf", mimeType);
         }
 
         [Fact]
         public void PngDetector_Should_Detect_Png_File()
         {
-            byte[] pngFileBytes = ReadAllBytesFromTestSubject("Test.png");
+            var mimeType = GetMimeTypeFromTestSubject("Test.png");
 
-            // Act
-            var mimeType = FileType.GetMimeType(pngFileBytes);
-
-            // Assert
             Assert.Equal("image/png", mimeType);
         }
 
         [Fact]
         public void ZipArchiveDetector_Should_Detect_Zip_File()
         {
-            byte[] zipFileBytes = ReadAllBytesFromTestSubject("Test.zip");
+            var mimeType = GetMimeTypeFromTestSubject("Test.zip");
 
-            // Act
-            var mimeType = FileType.GetMimeType(zipFileBytes);
-
-            // Assert
             Assert.Equal("application/zip", mimeType);
         }
 
         [Fact]
         public void DocxDetector_Should_Detect_Docx_File()
         {
-            byte[] docxFileBytes = ReadAllBytesFromTestSubject("Test.docx");
+            var mimeType = GetMimeTypeFromTestSubject("Test.docx");
 
-            // Act
-            var mimeType = FileType.GetMimeType(docxFileBytes);
-
-            // Assert
             Assert.Equal("application/vnd.openxmlformats-officedocument.wordprocessingml.document", mimeType);
         }
 
         [Fact]
         public void XlsxDetector_Should_Detect_Xlsx_File()
         {
-            byte[] xlsxFileBytes = ReadAllBytesFromTestSubject("Test.xlsx");
+            var mimeType = GetMimeTypeFromTestSubject("Test.xlsx");
 
-            // Act
-            var mimeType = FileType.GetMimeType(xlsxFileBytes);
-
-            // Assert
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", mimeType);
+        }
+
+        [Fact]
+        public void PlainTextDetector_Should_Detect_Plain_Text_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.txt");
+            
+            Assert.Equal("text/plain", mimeType);
+        }
+
+        [Fact]
+        public void CsvDetector_Should_Detect_Csv_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.csv");
+
+            Assert.Equal("text/csv", mimeType);
+        }
+
+        [Fact]
+        public void UnknownFile_Should_Return_Null()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.unknown");
+            
+            Assert.Null(mimeType);
         }
     }
 }

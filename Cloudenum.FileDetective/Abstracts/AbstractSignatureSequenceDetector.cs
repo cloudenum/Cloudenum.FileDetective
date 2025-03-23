@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace Cloudenum.FileDetective.Abstracts
 {
@@ -16,39 +18,36 @@ namespace Cloudenum.FileDetective.Abstracts
         /// </summary>
         public abstract FileSignatureSequence[] SignatureSequences { get; }
 
-        public virtual bool Matches(byte[] fileBytes)
+        public virtual bool Matches(Stream stream)
         {
-            if (fileBytes == null || fileBytes.Length == 0)
+            foreach (var sequence in SignatureSequences)
             {
-                return false;
-            }
-
-            if (SignatureSequences != null)
-            {
-                foreach (var sequence in SignatureSequences)
+                if (sequence.Length > 0 && stream.Length >= sequence.Length)
                 {
-                    if (sequence.Length > 0 && fileBytes.Length >= sequence.Length)
+                    foreach (var signature in sequence)
                     {
-                        bool sequenceMatch = true;
-                        foreach (var signature in sequence)
+                        var bufferSize = signature.MagicBytes.Length;
+                        byte[] buffer = new byte[bufferSize];
+                        stream.Position = signature.Offset;
+                        int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                        if (bytesRead == 0)
                         {
-                            byte[] currentSignature = fileBytes.Skip(signature.Offset).Take(signature.MagicBytes.Length).ToArray();
-                            if (currentSignature.SequenceEqual(signature.MagicBytes))
-                            {
-                                sequenceMatch &= true;
-                            }
-                            else
-                            {
-                                sequenceMatch &= false;
-                                break;
-                            }
+                            return false;
                         }
 
-                        if (sequenceMatch)
+                        if (bytesRead < bufferSize)
                         {
-                            return true;
+                            Array.Resize(ref buffer, bytesRead);
+                        }
+
+                        if (!buffer.SequenceEqual(signature.MagicBytes))
+                        {
+                            return false;
                         }
                     }
+
+                    return true;
                 }
             }
             return false;

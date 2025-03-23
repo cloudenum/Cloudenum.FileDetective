@@ -7,14 +7,14 @@ using Cloudenum.FileDetective;
 
 using (var file = File.OpenRead("path/to/file"))
 {
-	string mimeType = FileType.GetMimeType(file);
-	Console.WriteLine(mimeType);
+    string mimeType = FileType.GetMimeType(file);
+    Console.WriteLine(mimeType);
 
-	string[] extensions = FileType.GetExtensions(file);
-	foreach (string extension in extensions)
-	{
-		Console.WriteLine(extension);
-	}
+    string[] extensions = FileType.GetExtensions(file);
+    foreach (string extension in extensions)
+    {
+        Console.WriteLine(extension);
+    }
 })
 ```
 
@@ -36,15 +36,14 @@ For easier implementation, you can inherit from these abstract classes:
 ```csharp
 public class CustomFileDetector : AbstractSignatureDetector
 {
-	public override string Description { get; } = "Custom File";
-	public override string MimeType { get; } = "application/custom";
-	public override FileSignature[] Signatures { get; } = new FileSignature[]
-    {
+    public override string Description { get; } = "Custom File";
+    public override string MimeType { get; } = "application/custom";
+    public override FileSignature[] Signatures { get; } = {
         new FileSignature() {
             Offset = 0,
             MagicBytes = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF },
         },
-	}
+    }
 }
 ```
 

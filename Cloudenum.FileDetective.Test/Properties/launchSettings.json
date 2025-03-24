@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Cloudenum.FileDetective.Test": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "CURRENT_RUNTIME_IDENTIFIER": "win-x64"
+      },
+      "remoteDebugEnabled": true
+    }
+  }
+}

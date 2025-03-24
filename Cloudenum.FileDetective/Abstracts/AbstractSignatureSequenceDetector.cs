@@ -9,8 +9,10 @@ namespace Cloudenum.FileDetective.Abstracts
     /// </summary>
     public abstract class AbstractSignatureSequenceDetector : IFileDetector
     {
+        /// <inheritdoc/>
         public abstract string Description { get; }
 
+        /// <inheritdoc/>
         public abstract string MimeType { get; }
 
         /// <summary>
@@ -18,6 +20,7 @@ namespace Cloudenum.FileDetective.Abstracts
         /// </summary>
         public abstract FileSignatureSequence[] SignatureSequences { get; }
 
+        /// <inheritdoc/>
         public virtual bool Matches(Stream stream)
         {
             foreach (var sequence in SignatureSequences)

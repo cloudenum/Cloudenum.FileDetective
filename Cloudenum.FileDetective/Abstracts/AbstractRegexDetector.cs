@@ -10,8 +10,10 @@ namespace Cloudenum.FileDetective.Abstracts
     /// </summary>
     public abstract class AbstractRegexDetector : IFileDetector
     {
+        /// <inheritdoc/>
         public abstract string Description { get; }
 
+        /// <inheritdoc/>
         public abstract string MimeType { get; }
 
         /// <summary>
@@ -22,6 +24,7 @@ namespace Cloudenum.FileDetective.Abstracts
         /// </remarks>
         protected abstract Regex[] Regexes { get; }
 
+        /// <inheritdoc/>
         public virtual bool Matches(Stream stream)
         {
             if (!TextDetectorHelper.IsText(stream))

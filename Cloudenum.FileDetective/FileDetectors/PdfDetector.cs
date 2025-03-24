@@ -2,12 +2,18 @@
 
 namespace Cloudenum.FileDetective.FileDetectors
 {
+    /// <summary>
+    /// Detect PDF files
+    /// </summary>
     public class PdfDetector : AbstractSignatureDetector
     {
+        /// <inheritdoc/>
         public override string Description { get; } = "Portable Document Format";
 
+        /// <inheritdoc/>
         public override string MimeType { get; } = "application/pdf";
 
+        /// <inheritdoc/>
         public override FileSignature[] Signatures { get; } = new[]
         {
             new FileSignature()

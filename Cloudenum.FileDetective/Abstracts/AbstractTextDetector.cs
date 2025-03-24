@@ -8,8 +8,10 @@ namespace Cloudenum.FileDetective.Abstracts
     /// </summary>
     public abstract class AbstractTextDetector : IFileDetector
     {
+        /// <inheritdoc/>
         public abstract string Description { get; }
 
+        /// <inheritdoc/>
         public abstract string MimeType { get; }
 
         /// <summary>
@@ -23,6 +25,7 @@ namespace Cloudenum.FileDetective.Abstracts
         /// </remarks>
         protected abstract string[] TextSignatures { get; }
 
+        /// <inheritdoc/>
         public virtual bool Matches(Stream stream)
         {
             if (!TextDetectorHelper.IsText(stream))

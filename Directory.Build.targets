@@ -1,0 +1,17 @@
+<Project>
+
+	<Target Name="ShowProcessorArchitecture" BeforeTargets="Build">
+		<Message Text="ProcessorArchitecture: $(ProcessorArchitecture)" Importance="High" />
+		<Message Text="Platform: $(Platform)" Importance="High" />
+		<Message Text="CurrentRuntimeIdentifier: $(CurrentRuntimeIdentifier)" Importance="High" />
+		<Message Text="OS: $(OS)" Importance="High" />
+	</Target>
+
+	<!-- Native Libraries For Debugging -->
+	<ItemGroup>
+		<None Include="..\lib\$(CurrentRuntimeIdentifier)\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>

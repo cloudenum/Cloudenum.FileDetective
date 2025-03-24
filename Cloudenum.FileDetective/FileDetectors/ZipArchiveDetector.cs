@@ -2,12 +2,18 @@
 
 namespace Cloudenum.FileDetective.FileDetectors
 {
+    /// <summary>
+    /// Detects ZIP archives
+    /// </summary>
     public class ZipArchiveDetector : AbstractSignatureDetector
     {
+        /// <inheritdoc/>
         public override string Description { get; } = "ZIP archive";
 
+        /// <inheritdoc/>
         public override string MimeType { get; } = "application/zip";
 
+        /// <inheritdoc/>
         public override FileSignature[] Signatures { get; } = {
             new FileSignature()
             {

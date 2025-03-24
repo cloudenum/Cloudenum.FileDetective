@@ -3,29 +3,30 @@
 namespace Cloudenum.FileDetective.FileDetectors
 {
     /// <summary>
-    /// Detects AVI video files
+    /// Detects WebP files
     /// </summary>
-    public class AviDetector : AbstractSignatureSequenceDetector
+    public class WebpDetector : AbstractSignatureSequenceDetector
     {
         /// <inheritdoc/>
-        public override string Description { get; } = "Audio Video Interleave";
+        public override string Description { get; } = "WebP";
 
         /// <inheritdoc/>
-        public override string MimeType { get; } = "video/avi";
+        public override string MimeType { get; } = "image/webp";
 
         /// <inheritdoc/>
-        public override FileSignatureSequence[] SignatureSequences { get; } = new[] {
+        public override FileSignatureSequence[] SignatureSequences { get; } =
+        {
             new FileSignatureSequence()
             {
-                new FileSignature()
+                new FileSignature
                 {
                     Offset = 0,
                     MagicBytes = new byte[] { 0x52, 0x49, 0x46, 0x46 }
                 },
-                new FileSignature()
+                new FileSignature
                 {
                     Offset = 8,
-                    MagicBytes = new byte[] { 0x41, 0x56, 0x49, 0x20 }
+                    MagicBytes = new byte[] { 0x57, 0x45, 0x42, 0x50 }
                 }
             }
         };

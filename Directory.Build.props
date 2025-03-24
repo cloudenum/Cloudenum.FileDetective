@@ -1,0 +1,29 @@
+<Project>
+	<PropertyGroup>
+		<RuntimeIdentifiers>win-x86;win-x64;linux-x64;osx-arm64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition="'$(OS)' == 'Windows_NT' And '$(Platform)' == 'x86'">
+			<PropertyGroup>
+				<CurrentRuntimeIdentifier>win-x86</CurrentRuntimeIdentifier>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(OS)' == 'Windows_NT' And ('$(Platform)' == 'x64' Or '$(Platform)' == 'AnyCPU')">
+			<PropertyGroup>
+				<CurrentRuntimeIdentifier>win-x64</CurrentRuntimeIdentifier>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(OS)' == 'Linux'">
+			<PropertyGroup>
+				<CurrentRuntimeIdentifier>linux-x64</CurrentRuntimeIdentifier>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true' And '$(Platform)' == 'ARM64'">
+			<PropertyGroup>
+				<CurrentRuntimeIdentifier>osx-arm64</CurrentRuntimeIdentifier>
+			</PropertyGroup>
+		</When>
+	</Choose>
+	
+</Project>

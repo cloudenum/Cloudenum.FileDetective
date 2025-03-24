@@ -2,12 +2,18 @@
 
 namespace Cloudenum.FileDetective.FileDetectors
 {
+    /// <summary>
+    /// Detects JPEG 2000 images
+    /// </summary>
     public class Jpeg2000Detector : AbstractSignatureDetector
     {
+        /// <inheritdoc/>
         public override string Description { get; } = "JPEG 2000";
 
+        /// <inheritdoc/>
         public override string MimeType { get; } = "image/jp2";
 
+        /// <inheritdoc/>
         public override FileSignature[] Signatures { get; } = new FileSignature[]
         {
             new FileSignature()

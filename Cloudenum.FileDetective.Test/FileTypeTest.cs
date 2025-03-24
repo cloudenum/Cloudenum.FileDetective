@@ -39,6 +39,34 @@ namespace Cloudenum.FileDetective.Test
         }
 
         [Fact]
+        public void GifDetector_Should_Detect_Gif_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.gif");
+            Assert.Equal("image/gif", mimeType);
+        }
+
+        [Fact]
+        public void BmpDetector_Should_Detect_Bmp_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.bmp");
+            Assert.Equal("image/bmp", mimeType);
+        }
+
+        [Fact]
+        public void TiffDetector_Should_Detect_Tiff_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.tiff");
+            Assert.Equal("image/tiff", mimeType);
+        }
+
+        [Fact]
+        public void WebpDetector_Should_Detect_Webp_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.webp");
+            Assert.Equal("image/webp", mimeType);
+        }
+
+        [Fact]
         public void PdfDetector_Should_Detect_Pdf_File()
         {
             var mimeType = GetMimeTypeFromTestSubject("Test.pdf");
@@ -79,6 +107,34 @@ namespace Cloudenum.FileDetective.Test
         }
 
         [Fact]
+        public void PptxDetector_Should_Detect_Pptx_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.pptx");
+            Assert.Equal("application/vnd.openxmlformats-officedocument.presentationml.presentation", mimeType);
+        }
+
+        [Fact]
+        public void DocDetector_Should_Detect_Doc_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.doc");
+            Assert.Equal("application/msword", mimeType);
+        }
+
+        [Fact]
+        public void XlsDetector_Should_Detect_Xls_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.xls");
+            Assert.Equal("application/vnd.ms-excel", mimeType);
+        }
+
+        [Fact]
+        public void PptDetector_Should_Detect_Ppt_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.ppt");
+            Assert.Equal("application/vnd.ms-powerpoint", mimeType);
+        }
+
+        [Fact]
         public void PlainTextDetector_Should_Detect_Plain_Text_File()
         {
             var mimeType = GetMimeTypeFromTestSubject("Test.txt");
@@ -92,6 +148,21 @@ namespace Cloudenum.FileDetective.Test
             var mimeType = GetMimeTypeFromTestSubject("Test.csv");
 
             Assert.Equal("text/csv", mimeType);
+        }
+
+        [Fact]
+        public void JsonDetector_Should_Detect_Json_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.json");
+
+            Assert.Equal("application/json", mimeType);
+        }
+
+        [Fact]
+        public void SvgDetector_Should_Detect_Svg_File()
+        {
+            var mimeType = GetMimeTypeFromTestSubject("Test.svg");
+            Assert.Equal("image/svg+xml", mimeType);
         }
 
         [Fact]

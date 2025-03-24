@@ -2,12 +2,18 @@
 
 namespace Cloudenum.FileDetective.FileDetectors
 {
+    /// <summary>
+    /// Detects JPEG images
+    /// </summary>
     public class JpegDetector : AbstractSignatureDetector
     {
+        /// <inheritdoc/>
         public override string Description { get; } = "JPEG";
 
+        /// <inheritdoc/>
         public override string MimeType { get; } = "image/jpeg";
 
+        /// <inheritdoc/>
         public override FileSignature[] Signatures { get; } = new FileSignature[]
         {
             new FileSignature() {

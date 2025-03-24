@@ -8,8 +8,10 @@ namespace Cloudenum.FileDetective.Abstracts
     /// </summary>
     public abstract class AbstractZipBasedDetector : IFileDetector
     {
+        /// <inheritdoc/>
         public abstract string Description { get; }
 
+        /// <inheritdoc/>
         public abstract string MimeType { get; }
 
         /// <summary>
@@ -24,15 +26,16 @@ namespace Cloudenum.FileDetective.Abstracts
         /// <summary>
         /// Files to look for in the zip archive
         /// </summary>
-        protected abstract string[] ContentsToLookFor { get; }
+        protected abstract string[] ZipEntries { get; }
 
+        /// <inheritdoc/>
         public virtual bool Matches(Stream stream)
         {
             using (ZipArchive zipArchive = new ZipArchive(stream, mode: ZipArchiveMode.Read, leaveOpen: true))
             {
-                foreach (var content in ContentsToLookFor)
+                foreach (var entryName in ZipEntries)
                 {
-                    if (zipArchive.GetEntry(content) == null)
+                    if (zipArchive.GetEntry(entryName) == null)
                     {
                         return false;
                     }

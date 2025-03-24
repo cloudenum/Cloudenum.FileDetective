@@ -2,12 +2,18 @@
 
 namespace Cloudenum.FileDetective.FileDetectors
 {
+    /// <summary>
+    /// Detects PNG images
+    /// </summary>
     public class PngDetector : AbstractSignatureDetector
     {
+        /// <inheritdoc/>
         public override string Description { get; } = "Portable Network Graphics";
 
+        /// <inheritdoc/>
         public override string MimeType { get; } = "image/png";
 
+        /// <inheritdoc/>
         public override FileSignature[] Signatures { get; } = new FileSignature[]
         {
             new FileSignature()

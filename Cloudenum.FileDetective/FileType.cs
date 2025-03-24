@@ -13,63 +13,68 @@ namespace Cloudenum.FileDetective
     public class FileType
     {
         private static readonly List<IFileDetector> GeneralDetectors = new List<IFileDetector>();
-        private static readonly Dictionary<int, Dictionary<int, List<IFileDetector>>> SignatureDetectors = new Dictionary<int, Dictionary<int, List<IFileDetector>>>();
+        private static readonly Dictionary<int, Dictionary<short, List<IFileDetector>>> SignatureDetectors = new Dictionary<int, Dictionary<short, List<IFileDetector>>>();
 
         static FileType()
         {
+            // Signature Detectors
             RegisterFileDetector<AviDetector>();
             RegisterFileDetector<Jpeg2000Detector>();
             RegisterFileDetector<JpegDetector>();
             RegisterFileDetector<PdfDetector>();
             RegisterFileDetector<PngDetector>();
+            RegisterFileDetector<GifDetector>();
+            RegisterFileDetector<BmpDetector>();
+            RegisterFileDetector<TiffDetector>();
+            RegisterFileDetector<WebpDetector>();
 
             // ZIP Based Detectors
             RegisterFileDetector<ZipArchiveDetector>();
             RegisterFileDetector<DocxDetector>();
             RegisterFileDetector<XlsxDetector>();
+            RegisterFileDetector<PptxDetector>();
+
+            // CFBF Based Detectors
+            RegisterFileDetector<DocDetector>();
+            RegisterFileDetector<XlsDetector>();
+            RegisterFileDetector<PptDetector>();
 
             // Text Based Detectors
+            RegisterFileDetector<SvgDetector>();
+            RegisterFileDetector<JsonDetector>();
             RegisterFileDetector<CsvDetector>();
             RegisterFileDetector<PlainTextDetector>();
         }
 
-        private static int GetByteArrayPrefix(byte[] bytes, int offset = 0)
+        private static short GetByteArrayPrefix(byte[] bytes, int offset = 0)
         {
-            var fourBytes = bytes.Skip(offset).Take(4);
-            var count = fourBytes.Count();
-            if (count < 4)
+            byte[] twoBytes;
+            if (bytes.Length > 2)
             {
-                fourBytes = fourBytes.Concat(Enumerable.Repeat((byte)0, 4 - count));
+                twoBytes = bytes.Skip(offset).Take(2).ToArray();
+            }
+            else
+            {
+                twoBytes = bytes;
             }
 
-            return BitConverter.ToInt32(fourBytes.ToArray(), 0);
+            return BitConverter.ToInt16(twoBytes, 0);
         }
 
-        private static void RegisterZipDetector(IFileDetector fileDetector)
+        private static void RegisterSignatureDetector(IFileDetector signatureDetector, FileSignature signature, bool prepend = false)
         {
-            var offset = AbstractZipBasedDetector.ZipSignature.Offset;
-            var zipSignaturePrefix = GetByteArrayPrefix(AbstractZipBasedDetector.ZipSignature.MagicBytes);
+            if (signature.MagicBytes.Length < 2)
+            {
+                GeneralDetectors.Add(signatureDetector);
+                return;
+            }
+
+            var prefix = GetByteArrayPrefix(signature.MagicBytes);
+            int offset = signature.Offset;
 
             if (!SignatureDetectors.ContainsKey(offset))
             {
-                SignatureDetectors[offset] = new Dictionary<int, List<IFileDetector>>();
-            }
-
-            if (!SignatureDetectors[offset].ContainsKey(zipSignaturePrefix))
-            {
-                SignatureDetectors[offset][zipSignaturePrefix] = new List<IFileDetector>();
-            }
-
-            SignatureDetectors[offset][zipSignaturePrefix].Insert(0, fileDetector);
-        }
-
-        private static void RegisterSignatureDetector(IFileDetector signatureDetector, int offset, byte[] magicBytes)
-        {
-            var prefix = GetByteArrayPrefix(magicBytes);
-
-            if (!SignatureDetectors.ContainsKey(offset))
-            {
-                SignatureDetectors[offset] = new Dictionary<int, List<IFileDetector>>();
+                SignatureDetectors[offset] = new Dictionary<short, List<IFileDetector>>();
             }
 
             if (!SignatureDetectors[offset].ContainsKey(prefix))
@@ -77,7 +82,14 @@ namespace Cloudenum.FileDetective
                 SignatureDetectors[offset][prefix] = new List<IFileDetector>();
             }
 
-            SignatureDetectors[offset][prefix].Add(signatureDetector);
+            if (prepend)
+            {
+                SignatureDetectors[offset][prefix].Insert(0, signatureDetector);
+            }
+            else
+            {
+                SignatureDetectors[offset][prefix].Add(signatureDetector);
+            }
         }
 
         /// <summary>
@@ -102,7 +114,7 @@ namespace Cloudenum.FileDetective
             {
                 foreach (var signature in signatureDetector.Signatures)
                 {
-                    RegisterSignatureDetector(fileDetector, signature.Offset, signature.MagicBytes);
+                    RegisterSignatureDetector(fileDetector, signature);
                 }
             }
             else if (fileDetector is AbstractSignatureSequenceDetector signatureSequenceDetector)
@@ -111,13 +123,23 @@ namespace Cloudenum.FileDetective
                 {
                     if (sequence.Count > 0)
                     {
-                        RegisterSignatureDetector(fileDetector, sequence[0].Offset, sequence[0].MagicBytes);
+                        RegisterSignatureDetector(fileDetector, sequence[0]);
                     }
                 }
             }
             else if (fileDetector is AbstractZipBasedDetector)
             {
-                RegisterZipDetector(fileDetector);
+                RegisterSignatureDetector(
+                    fileDetector,
+                    signature: AbstractZipBasedDetector.ZipSignature,
+                    prepend: true);
+            }
+            else if (fileDetector is AbstractCfbfDetector)
+            {
+                RegisterSignatureDetector(
+                    fileDetector,
+                    signature: AbstractCfbfDetector.CfbfSignature,
+                    prepend: true);
             }
             else
             {
@@ -132,6 +154,8 @@ namespace Cloudenum.FileDetective
         /// <returns>
         /// The file extensions without leading dot or null if the file is not recognized
         /// </returns>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentException"/>
         public static string[] GetFileExtensions(Stream stream)
         {
             var mime = GetMimeType(stream);
@@ -144,7 +168,7 @@ namespace Cloudenum.FileDetective
         /// </summary>
         /// <param name="stream">Source stream of the file</param>
         /// <returns>
-        /// The file extensions without leading dot or null if the file is not recognized
+        /// The MIME type or null if the file is not recognized
         /// </returns>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
@@ -169,17 +193,17 @@ namespace Cloudenum.FileDetective
             foreach (var offsetGroup in SignatureDetectors)
             {
                 int offset = offsetGroup.Key;
-                int bufferSize = 4;
+                int bufferSize = 2;
                 byte[] buffer = new byte[bufferSize];
-                stream.Position = 0;
-                int bytesRead = stream.Read(buffer, offset, buffer.Length);
+                stream.Position = offset;
+                int bytesRead = stream.Read(buffer, 0, bufferSize);
 
                 if (bytesRead < bufferSize)
                 {
                     Array.Resize(ref buffer, bytesRead);
                 }
 
-                int prefix = GetByteArrayPrefix(buffer, offset);
+                short prefix = GetByteArrayPrefix(buffer, 0);
                 if (offsetGroup.Value.ContainsKey(prefix))
                 {
                     foreach (IFileDetector detector in offsetGroup.Value[prefix])

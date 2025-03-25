@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Authors>Hammam Afiq Murtadho</Authors>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Description>
 			This library is used to detect file's type based on its content.
 		</Description>

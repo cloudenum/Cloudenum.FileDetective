@@ -150,12 +150,39 @@ namespace Cloudenum.FileDetective
         /// <summary>
         /// Get every file extensions that corresponds to the file MIME type
         /// </summary>
+        /// <param name="fileBytes">Byte array of the file</param>
+        /// <returns>
+        /// An array of file extensions without leading dot or null if the file is not recognized
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// If the <paramref name="fileBytes"/> is null
+        /// </exception>
+        public static string[] GetFileExtensions(byte[] fileBytes)
+        {
+            if (fileBytes == null)
+            {
+                throw new ArgumentNullException(nameof(fileBytes));
+            }
+
+            using (var stream = new MemoryStream(fileBytes))
+            {
+                return GetFileExtensions(stream);
+            }
+        }
+
+        /// <summary>
+        /// Get every file extensions that corresponds to the file MIME type
+        /// </summary>
         /// <param name="stream">Source stream of the file</param>
         /// <returns>
-        /// The file extensions without leading dot or null if the file is not recognized
+        /// An array of file extensions without leading dot or null if the file is not recognized
         /// </returns>
-        /// <exception cref="ArgumentNullException"/>
-        /// <exception cref="ArgumentException"/>
+        /// <exception cref="ArgumentNullException">
+        /// If the <paramref name="stream"/> is null
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// If the <paramref name="stream"/> is not seekable and/or readable
+        /// </exception>
         public static string[] GetFileExtensions(Stream stream)
         {
             var mime = GetMimeType(stream);
@@ -166,12 +193,39 @@ namespace Cloudenum.FileDetective
         /// <summary>
         /// Get the MIME type of a file
         /// </summary>
+        /// <param name="fileBytes">Byte array of the file</param>
+        /// <returns>
+        /// The MIME type or null if the file is not recognized
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// If the <paramref name="fileBytes"/> is null
+        /// </exception>
+        public static string GetMimeType(byte[] fileBytes)
+        {
+            if (fileBytes == null)
+            {
+                throw new ArgumentNullException(nameof(fileBytes));
+            }
+
+            using (var stream = new MemoryStream(fileBytes))
+            {
+                return GetMimeType(stream);
+            }
+        }
+
+        /// <summary>
+        /// Get the MIME type of a file
+        /// </summary>
         /// <param name="stream">Source stream of the file</param>
         /// <returns>
         /// The MIME type or null if the file is not recognized
         /// </returns>
-        /// <exception cref="ArgumentNullException"/>
-        /// <exception cref="ArgumentException"/>
+        /// <exception cref="ArgumentNullException">
+        /// If the <paramref name="stream"/> is null
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// If the <paramref name="stream"/> is not seekable and/or readable
+        /// </exception>
         public static string GetMimeType(Stream stream)
         {
             if (stream == null)
